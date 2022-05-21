@@ -15,5 +15,6 @@ namespace FilterExpression.Constants
         public const string LessThanAndEqual = "le";
         public const string StartsWith = "startswith";
         public const string Contains = "contains";
+        public const string In = "in";
     }
 }

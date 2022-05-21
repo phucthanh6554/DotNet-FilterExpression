@@ -4,6 +4,10 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Authors>Phuc_Nguyen_6554</Authors>
+    <Description>Translate from string into an Expression Tree</Description>
+    <PackageProjectUrl>https://github.com/phucthanh6554/DotNet-FilterExpression</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/phucthanh6554/DotNet-FilterExpression</RepositoryUrl>
   </PropertyGroup>
 
 </Project>

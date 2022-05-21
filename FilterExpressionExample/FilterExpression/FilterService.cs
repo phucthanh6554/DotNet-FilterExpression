@@ -1,5 +1,6 @@
 ﻿using FilterExpression.Constants;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -120,6 +121,12 @@ namespace FilterExpression
 
                 MethodInfo func;
 
+                // In operator
+                if (strData[1] == Operators.In && strData[2].Contains('['))
+                {
+                    return InArrayOperator(strData, ref property);
+                }
+
                 switch (strData[1].ToLower())
                 {
                     case Operators.Equal:
@@ -159,6 +166,24 @@ namespace FilterExpression
             }
 
             return result;
+        }
+
+        private Expression InArrayOperator(string[] strData, ref MemberExpression property)
+        {
+            var valueStrArr = strData[2].Trim('`', '[', ']').Split(',');
+
+            IList listValue = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(property.Type));
+
+            if (listValue == null)
+                throw new Exception("Something went wrong");
+
+            foreach (var v in valueStrArr)
+                listValue.Add(ParseValue(v, property.Type));
+
+            var containsFunc = typeof(ICollection<>).MakeGenericType(property.Type).GetMethod("Contains");
+
+            var arrayValue = Expression.Constant(listValue);
+            return Expression.Call(arrayValue, containsFunc, property);
         }
 
         private object ParseValue(string value, Type type)
