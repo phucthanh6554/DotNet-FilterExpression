@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32421.90
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FilterExpressionExample", "FilterExpressionExample\FilterExpressionExample.csproj", "{93E77E3F-0C54-465C-9E09-68920020EF96}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FilterExpression", "FilterExpression\FilterExpression.csproj", "{DD7081A3-8CE3-4307-8EF8-FD79012019F3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{93E77E3F-0C54-465C-9E09-68920020EF96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93E77E3F-0C54-465C-9E09-68920020EF96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93E77E3F-0C54-465C-9E09-68920020EF96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93E77E3F-0C54-465C-9E09-68920020EF96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD7081A3-8CE3-4307-8EF8-FD79012019F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD7081A3-8CE3-4307-8EF8-FD79012019F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD7081A3-8CE3-4307-8EF8-FD79012019F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD7081A3-8CE3-4307-8EF8-FD79012019F3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7A579688-C66A-4777-9C77-7DD9A3A50614}
+	EndGlobalSection
+EndGlobal
