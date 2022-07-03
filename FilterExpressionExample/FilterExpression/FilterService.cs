@@ -71,7 +71,16 @@ namespace FilterExpression
                     expression = Expression.Not(expression);
 
                     Output[i] = expression;
-                    Output[i - 1] = null;
+
+                    if (i - 2 > -1)
+                    {
+                        Output[i - 1] = Output[i - 2];
+                        Output[i - 2] = null;
+                    }
+                    else
+                    {
+                        Output[i - 1] = null;
+                    }
                 }
                 else if (Output[i].GetType() == typeof(string) && i > 1)
                 {

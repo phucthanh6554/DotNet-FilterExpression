@@ -8,7 +8,7 @@ var list = new List<Customer>
 };
 
 var filterService = new FilterService();
-var filter = filterService.Filter<Customer>("((Id eq `1`) & (Id eq `3`))");
+var filter = filterService.Filter<Customer>("((Id eq `1`) | !(Id eq `3`))");
 
 var filteredList = list.Where(filter.Compile()).ToArray();
 
