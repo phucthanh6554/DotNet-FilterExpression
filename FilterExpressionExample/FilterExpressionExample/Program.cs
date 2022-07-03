@@ -1,4 +1,5 @@
 ﻿using FilterExpression;
+using FilterExpression.Extension;
 
 var list = new List<Customer>
 {
@@ -7,10 +8,7 @@ var list = new List<Customer>
     new Customer{ Name = "Hiep", Age = 15, Id = 3, BirthDay = new DateTime(2000, 5, 1)  },
 };
 
-var filterService = new FilterService();
-var filter = filterService.Filter<Customer>("((Id eq `1`) | !(Id eq `3`))");
-
-var filteredList = list.Where(filter.Compile()).ToArray();
+var filteredList = list.Filter("!((Id eq `1`) | (Id eq `3`))");
 
 Console.WriteLine(filteredList);
 
