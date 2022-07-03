@@ -21,6 +21,9 @@ var filteredList = list.Where(filter.Compile()).ToArray();
 
 // Another way
 var filteredList = list.Filter("(BirthDay le `1997-9-15`)");
+
+// Supported for IQueryable
+var filteredList = list.AsQueryable.Filter("(BirthDay le `1997-9-15`)").ToList();
 ```
 
 ## Supported Operator
