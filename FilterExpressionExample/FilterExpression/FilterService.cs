@@ -1,5 +1,4 @@
-﻿using FilterExpression.Constants;
-using FilterExpression.Directive;
+﻿using FilterExpression.Directive;
 using FilterExpression.DirectiveDispatcher;
 using System;
 using System.Collections;
