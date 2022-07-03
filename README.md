@@ -5,6 +5,7 @@ Example: ``` ((Name eq `Phuc Nguyen`) & (Age gt `25`)) ``` => ``` x => x.Name ==
 ## Example Code:
 ```
 using FilterExpression;
+using FilterExpression.Extension;
 
 var list = new List<Customer>
 {
@@ -17,11 +18,15 @@ var filterService = new FilterService();
 var filter = filterService.Filter<Customer>("(BirthDay le `1997-9-15`)");
 
 var filteredList = list.Where(filter.Compile()).ToArray();
+
+// Another way
+var filteredList = list.Filter("(BirthDay le `1997-9-15`)");
 ```
 
 ## Supported Operator
 
 - Equal: ``` (Name eq `Phuc Nguyen`) ``` 
+- Not Equal: ``` (Name ne `Phuc Nguyen`) ``` 
 - Greater than: ``` (Age gt `25`) ```
 - Greater than and equal ``` (Age ge `25`) ```
 - Less than: ``` (Age lt `25`) ```
@@ -31,3 +36,4 @@ var filteredList = list.Where(filter.Compile()).ToArray();
 - In: ``` (Age in `[25, 26]`) ```
 - And: ``` ( (Age eq `25`) & (Name eq `Phuc`)) ```
 - Or: ``` ( (Age eq `25`) | (Name eq `Phuc`)) ```
+- Not: ```!(Name eq `Phuc Nguyen`) ```
