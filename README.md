@@ -40,3 +40,30 @@ var filteredList = list.AsQueryable.Filter("(BirthDay le `1997-9-15`)").ToList()
 - And: ``` ( (Age eq `25`) & (Name eq `Phuc`)) ```
 - Or: ``` ( (Age eq `25`) | (Name eq `Phuc`)) ```
 - Not: ```!(Name eq `Phuc Nguyen`) ```
+
+## Custom Filter
+You can create a custom filter syntax by implement IFilterDirective interface
+### Example
+```
+using System.Linq.Expressions;
+
+namespace FilterExpression.Directive
+{
+    internal class EqualDirective : IFilterDirective
+    {
+        public string FilterSyntax
+        {
+            get
+            {
+                return "eq"; // Syntax will be used in FilterExpression string
+            }
+        }
+
+        // Build expression tree here 
+        public Expression GenerateExpression(ref MemberExpression property, ConstantExpression value)
+        {
+            return Expression.Equal(property, value);
+        }
+    }
+}
+```
