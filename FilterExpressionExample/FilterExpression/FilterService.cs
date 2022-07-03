@@ -1,4 +1,6 @@
 ﻿using FilterExpression.Constants;
+using FilterExpression.Directive;
+using FilterExpression.DirectiveDispatcher;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,13 +14,16 @@ namespace FilterExpression
 {
     public class FilterService
     {
+        private static DirectiveDispatchService _dispatchService = new DirectiveDispatchService();
+        private static ParseValueService _parseValueService = new ParseValueService();
+
         public Expression<Func<T, bool>> Filter<T>(string fe)
         {
             List<object> Output = new List<object>();
             Stack<string> Stack = new Stack<string>();
 
             string str = "";
-            var operators = new List<string> { "(", "&", "|" };
+            var operators = new List<string> { "(", "&", "|", "!" };
 
             int singleQuoteCount = 0;
 
@@ -59,7 +64,16 @@ namespace FilterExpression
 
             for (var i = 0; i < Output.Count; i++)
             {
-                if (Output[i].GetType() == typeof(string) && i > 1)
+                if(Output[i].GetType() == typeof(string) && Output[i].ToString() == "!" && i > 0)
+                {
+                    var expression = (Expression)Output[i - 1];
+
+                    expression = Expression.Not(expression);
+
+                    Output[i] = expression;
+                    Output[i - 1] = null;
+                }
+                else if (Output[i].GetType() == typeof(string) && i > 1)
                 {
                     var val1 = (Expression)Output[i - 2];
                     var val2 = (Expression)Output[i - 1];
@@ -115,101 +129,15 @@ namespace FilterExpression
             {
                 //ParameterExpression parameterExpression = Expression.Parameter(typeof(T), "x");
                 var property = Expression.Property(parameter, strData[0]);
-                var parsedValue = ParseValue(strData[2].Trim('`'), property.Type);
 
-                var value = Expression.Constant(parsedValue, property.Type);
+                ConstantExpression value = _parseValueService.GetConstantExpression(strData[2], property.Type);
 
-                MethodInfo func;
+                IFilterDirective filterDirective = _dispatchService.GetDirective(strData[1]);
 
-                // In operator
-                if (strData[1] == Operators.In && strData[2].Contains('['))
-                {
-                    return InArrayOperator(strData, ref property);
-                }
-
-                switch (strData[1].ToLower())
-                {
-                    case Operators.Equal:
-                        result = Expression.Equal(property, value);
-                        break;
-                    case Operators.LessThan:
-                        result = Expression.LessThan(property, value);
-                        break;
-                    case Operators.LessThanAndEqual:
-                        result = Expression.LessThanOrEqual(property, value);
-                        break;
-                    case Operators.GreaterThan:
-                        result = Expression.GreaterThan(property, value);
-                        break;
-                    case Operators.GreaterThanAndEqual:
-                        result = Expression.GreaterThanOrEqual(property, value);
-                        break;
-                    case Operators.StartsWith:
-                        func = typeof(string).GetMethod("StartsWith", new Type[] { typeof(string) });
-
-                        if (func == null)
-                            throw new Exception("Cannot find startswith function");
-
-                        result = Expression.Call(property, func, value);
-                        break;
-                    case Operators.Contains:
-                        func = typeof(string).GetMethod("Contains", new Type[] { typeof(string) });
-
-                        if (func == null)
-                            throw new Exception("Cannot find startswith function");
-
-                        result = Expression.Call(property, func, value);
-                        break;
-                    default:
-                        break;
-                }
+                return filterDirective.GenerateExpression(ref property, value);               
             }
 
             return result;
-        }
-
-        private Expression InArrayOperator(string[] strData, ref MemberExpression property)
-        {
-            var valueStrArr = strData[2].Trim('`', '[', ']').Split(',');
-
-            IList listValue = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(property.Type));
-
-            if (listValue == null)
-                throw new Exception("Something went wrong");
-
-            foreach (var v in valueStrArr)
-                listValue.Add(ParseValue(v, property.Type));
-
-            var containsFunc = typeof(ICollection<>).MakeGenericType(property.Type).GetMethod("Contains");
-
-            var arrayValue = Expression.Constant(listValue);
-            return Expression.Call(arrayValue, containsFunc, property);
-        }
-
-        private object ParseValue(string value, Type type)
-        {
-            switch (Type.GetTypeCode(type))
-            {
-                case TypeCode.Int16:
-                case TypeCode.UInt16:
-                case TypeCode.Int32:
-                case TypeCode.UInt32:
-                case TypeCode.Int64:
-                case TypeCode.UInt64:
-                    return int.Parse(value);
-                case TypeCode.Double:
-                    return double.Parse(value);
-                case TypeCode.Decimal:
-                    return decimal.Parse(value);
-                case TypeCode.DateTime:
-                    return DateTime.Parse(value);
-                case TypeCode.String:
-                default:
-                    return value.ToString();
-            }
-
-            throw new Exception("Unsupported Value Type");
-
         }
     }
 }
