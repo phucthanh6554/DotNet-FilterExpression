@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace FilterExpression
@@ -18,6 +19,9 @@ namespace FilterExpression
 
         public Expression<Func<T, bool>> Filter<T>(string fe)
         {
+            if (string.IsNullOrEmpty(fe) || string.IsNullOrWhiteSpace(fe))
+                return x => true;
+
             List<object> Output = new List<object>();
             Stack<string> Stack = new Stack<string>();
 
@@ -74,11 +78,11 @@ namespace FilterExpression
                     if (i - 2 > -1)
                     {
                         Output[i - 1] = Output[i - 2];
-                        Output[i - 2] = null;
+                        Output[i - 2] = null!;
                     }
                     else
                     {
-                        Output[i - 1] = null;
+                        Output[i - 1] = null!;
                     }
                 }
                 else if (Output[i].GetType() == typeof(string) && i > 1)
@@ -91,16 +95,16 @@ namespace FilterExpression
                     else if (Output[i].ToString() == "|")
                         Output[i] = Expression.Or(val1, val2);
 
-                    Output[i - 2] = null;
+                    Output[i - 2] = null!;
 
                     if (i - 3 > -1)
                     {
                         Output[i - 1] = Output[i - 3];
-                        Output[i - 3] = null;
+                        Output[i - 3] = null!;
                     }
                     else
                     {
-                        Output[i - 1] = null;
+                        Output[i - 1] = null!;
                     }
                 }
             }
@@ -135,8 +139,15 @@ namespace FilterExpression
 
             if (strData.Length == 3)
             {
+                var propertiesStr = strData[0].Split('.');
+
                 //ParameterExpression parameterExpression = Expression.Parameter(typeof(T), "x");
-                var property = Expression.Property(parameter, strData[0]);
+                var property = Expression.Property(parameter, propertiesStr[0]);
+
+                for(int i = 1; i < propertiesStr.Length; i++)
+                {
+                    property = Expression.Property(property, propertiesStr[i]);
+                }
 
                 ConstantExpression value = _parseValueService.GetConstantExpression(strData[2], property.Type);
 
