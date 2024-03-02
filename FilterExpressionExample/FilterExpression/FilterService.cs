@@ -18,6 +18,9 @@ namespace FilterExpression
 
         public Expression<Func<T, bool>> Filter<T>(string fe)
         {
+            if (string.IsNullOrEmpty(fe))
+                return x => true;
+
             List<object> Output = new List<object>();
             Stack<string> Stack = new Stack<string>();
 
@@ -32,6 +35,14 @@ namespace FilterExpression
             {
                 if (operators.Contains(c.ToString()))
                 {
+                    if (Stack.Any() && Stack.First() == "!" && c != '!')
+                    {
+                        Stack.Pop();
+                        Stack.Push(c.ToString());
+                        Stack.Push("!");
+                        continue;
+                    }
+
                     Stack.Push(c.ToString());
                     continue;
                 }
@@ -61,53 +72,32 @@ namespace FilterExpression
 
             Output.AddRange(GetStack(ref Stack));
 
+            var resultStack = new Stack();
+
             for (var i = 0; i < Output.Count; i++)
             {
-                if(Output[i].GetType() == typeof(string) && Output[i].ToString() == "!" && i > 0)
+                if (Output[i] is not string)
+                    resultStack.Push(Output[i]);
+                else if (Output[i] is string && (string)Output[i] != "!")
                 {
-                    var expression = (Expression)Output[i - 1];
-
-                    expression = Expression.Not(expression);
-
-                    Output[i] = expression;
-
-                    if (i - 2 > -1)
-                    {
-                        Output[i - 1] = Output[i - 2];
-                        Output[i - 2] = null;
-                    }
-                    else
-                    {
-                        Output[i - 1] = null;
-                    }
-                }
-                else if (Output[i].GetType() == typeof(string) && i > 1)
-                {
-                    var val1 = (Expression)Output[i - 2];
-                    var val2 = (Expression)Output[i - 1];
+                    var val1 = (Expression)resultStack.Pop()!;
+                    var val2 = (Expression)resultStack.Pop()!;
 
                     if (Output[i].ToString() == "&")
-                        Output[i] = Expression.And(val1, val2);
+                        resultStack.Push(Expression.And(val1, val2));
                     else if (Output[i].ToString() == "|")
-                        Output[i] = Expression.Or(val1, val2);
-
-                    Output[i - 2] = null;
-
-                    if (i - 3 > -1)
-                    {
-                        Output[i - 1] = Output[i - 3];
-                        Output[i - 3] = null;
-                    }
-                    else
-                    {
-                        Output[i - 1] = null;
-                    }
+                        resultStack.Push(Expression.Or(val1, val2));
+                }
+                else if (Output[i] is string && (string)Output[i] == "!")
+                {
+                    var val1 = (Expression)resultStack.Pop()!;
+                    resultStack.Push(Expression.Not(val1));
                 }
             }
 
-            var a = (Expression)Output[Output.Count - 1];
+            var resultExpression = resultStack.Pop();
 
-            return Expression.Lambda<Func<T, bool>>((Expression)Output[Output.Count - 1], parameter);
+            return Expression.Lambda<Func<T, bool>>((Expression)resultExpression!, parameter);
         }
 
         private List<object> GetStack(ref Stack<string> stack)
